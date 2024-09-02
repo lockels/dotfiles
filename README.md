@@ -1,4 +1,4 @@
-# My Dotfiles
+# My dotfiles
 
 dotfiles i use on my Mac for
 1. nvim, tmux (terminal workflow)
