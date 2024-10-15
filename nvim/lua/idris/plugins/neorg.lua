@@ -1,26 +1,26 @@
 return {
-  -- "nvim-neorg/neorg",
-  -- dependencies = { "luarocks.nvim" },
-  -- version = "*",
-  -- config = function()
-  --   require("neorg").setup({
-  --     load = {
-  --       ["core.defaults"] = {},
-  --       ["core.concealer"] = {
-  --         config = {
-  --           icon_preset = "diamond",
-  --         }
-  --       },
-  --       ["core.dirman"] = {
-  --         config = {
-  --           workspacs = {
-  --             notes = "~/notes",
-  --           },
-  --         },
-  --       },
-  --     },
-  --   })
-  --   vim.wo.foldlevel = 99
-  --   vim.wo.conceallevel = 2
-  -- end,
+	-- "nvim-neorg/neorg",
+	-- event = { "BufReadPre", "BufNewFile" },
+	-- version = "*",
+	-- config = function()
+	-- 	require("neorg").setup({
+	-- 		load = {
+	-- 			["core.defaults"] = {},
+	-- 			["core.concealer"] = {
+	-- 				config = {
+	-- 					icon_preset = "diamond",
+	-- 				},
+	-- 			},
+	-- 			["core.dirman"] = {
+	-- 				config = {
+	-- 					workspacs = {
+	-- 						notes = "~/notes",
+	-- 					},
+	-- 				},
+	-- 			},
+	-- 		},
+	-- 	})
+	-- 	vim.wo.foldlevel = 99
+	-- 	vim.wo.conceallevel = 2
+	-- end,
 }

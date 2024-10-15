@@ -7,7 +7,6 @@ return {
 
   config = function()
     local mason = require("mason")
-    local mason_lspconfig = require("mason-lspconfig")
 
     mason.setup({
       ui = {
@@ -18,15 +17,6 @@ return {
           package_uninstalled = "✗"
         },
       },
-    })
-
-    mason_lspconfig.setup({
-      ensure_installed = {
-        "lua_ls",     -- Lua
-        "rust_analyzer", -- Rust
-        "pyright",    -- Python
-        "jdtls",      -- Java
-      }
     })
   end
 }

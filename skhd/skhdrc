@@ -22,18 +22,12 @@ shift + alt - x : yabai -m space --mirror x-axis
 #Modify window size
 
 # maximise a window
-shift + alt - m : yabai -m window --toggle zoom-fullscreen
+ctrl + alt - m : yabai -m window --toggle zoom-fullscreen
 
 # balance out the tree of windows
 shift + alt - e : yabai -m space --balance
 
 #Moving windows around
-
-# swap window
-shift + alt - j : yabai -m window --swap south
-shift + alt - k : yabai -m window --swap north
-shift + alt - h : yabai -m window --swap west
-shift + alt - l : yabai -m window --swap east
 
 # move window and split
 ctrl + alt - j : yabai -m window --warp south

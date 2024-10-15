@@ -7,4 +7,10 @@ return {
       show_start = false,
     },
   },
+
+  config = function()
+    require "ibl".overwrite {
+      exclude = { filetypes = { "python" } }
+    }
+  end,
 }

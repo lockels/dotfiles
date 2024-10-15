@@ -41,14 +41,14 @@ opt.clipboard:append("unnamedplus")
 opt.backspace = "indent,eol,start"
 
 -- disable nvim start screen
-opt.shortmess:append "sI"
+opt.shortmess:append("sI")
 
 -- disable tildes on unused lines
-opt.fillchars:append({ eob = ' ' })
+opt.fillchars:append({ eob = " " })
 
 -- set <leader> key to space
 g.mapleader = " "
-g.maplocalleader = ' '
+g.maplocalleader = " "
 
 -- decrease update time
 opt.updatetime = 250
@@ -60,22 +60,25 @@ opt.signcolumn = "yes"
 -- splits
 opt.splitbelow = true
 opt.splitright = true
-opt.laststatus = 2
+opt.laststatus = 3
 
--- visual representation of search and replace stream editor
+-- visual representation of substitute
 opt.inccommand = "split"
 
--- Set highlight on search, but clear on pressing <Esc> in normal mode
+-- Set highlight on search
 opt.hlsearch = true
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- fix visual block mode with virutaledit
 opt.virtualedit = "block"
 
+-- disable netrw
+g.loaded_netrw = 1
+g.loaded_netrwPlugin = 1
+
 ----- Indent Settings -----
 
 local indent_settings = {
-  java = { shiftwidth = 4, tabstop = 4 },
+	java = { shiftwidth = 4, tabstop = 4 },
 }
 
 ------ Auto Commands ------
@@ -83,66 +86,71 @@ local indent_settings = {
 -- automatically close nvim tree if its the last buffer
 
 vim.api.nvim_create_autocmd("QuitPre", {
-  callback = function()
-    local tree_wins = {}
-    local floating_wins = {}
-    local wins = vim.api.nvim_list_wins()
-    for _, w in ipairs(wins) do
-      local bufname = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(w))
-      if bufname:match("NvimTree_") ~= nil then
-        table.insert(tree_wins, w)
-      end
-      if vim.api.nvim_win_get_config(w).relative ~= '' then
-        table.insert(floating_wins, w)
-      end
-    end
-    if 1 == #wins - #floating_wins - #tree_wins then
-      -- Should quit, so we close all invalid windows.
-      for _, w in ipairs(tree_wins) do
-        vim.api.nvim_win_close(w, true)
-      end
-    end
-  end
+	callback = function()
+		local tree_wins = {}
+		local floating_wins = {}
+		local wins = vim.api.nvim_list_wins()
+		for _, w in ipairs(wins) do
+			local bufname = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(w))
+			if bufname:match("NvimTree_") ~= nil then
+				table.insert(tree_wins, w)
+			end
+			if vim.api.nvim_win_get_config(w).relative ~= "" then
+				table.insert(floating_wins, w)
+			end
+		end
+		if 1 == #wins - #floating_wins - #tree_wins then
+			-- Should quit, so we close all invalid windows.
+			for _, w in ipairs(tree_wins) do
+				vim.api.nvim_win_close(w, true)
+			end
+		end
+	end,
 })
 
 -- Apply indent settings
 
 for filetype, settings in pairs(indent_settings) do
-  vim.api.nvim_create_autocmd("FileType", {
-    pattern = filetype,
-    callback = function()
-      for option, value in pairs(settings) do
-        vim.bo[option] = value
-      end
-    end,
-  })
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = filetype,
+		callback = function()
+			for option, value in pairs(settings) do
+				vim.bo[option] = value
+			end
+		end,
+	})
 end
 
 -- Highlight on yank
 
-vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking text',
-  group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
+vim.api.nvim_create_autocmd("TextYankPost", {
+	desc = "Highlight when yanking text",
+	group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
+	callback = function()
+		vim.highlight.on_yank()
+	end,
 })
-
 
 -- Define an autocommand group for closing buffers with 'q'
-vim.api.nvim_create_augroup('CloseWithQ', { clear = true })
+vim.api.nvim_create_augroup("CloseWithQ", { clear = true })
 
 -- Create an autocommand for the specified filetypes
-vim.api.nvim_create_autocmd('FileType', {
-  group = 'CloseWithQ',
-  pattern = { 'help', 'lspinfo', 'qf', 'man', 'oil' },
-  callback = function()
-    vim.api.nvim_buf_set_keymap(0, 'n', 'q', ':quit<CR>', { noremap = true, silent = true })
-  end
+vim.api.nvim_create_autocmd("FileType", {
+	group = "CloseWithQ",
+	pattern = { "help", "lspinfo", "qf", "man", "oil" },
+	callback = function()
+		vim.api.nvim_buf_set_keymap(0, "n", "q", ":bd<CR>", { noremap = true, silent = true })
+	end,
 })
 
--- Close help buffers with q  
+-- Remove trailing whitespace on save
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+	pattern = { "*" },
+	command = [[%s/\s\+$//e]],
+})
 
------- User Commands ------ 
+-- Close help buffers with q
+
+------ User Commands ------
 
 local user_cmd = vim.api.nvim_create_user_command
