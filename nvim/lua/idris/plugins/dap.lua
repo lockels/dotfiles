@@ -1,123 +1,78 @@
 -- Debugging.
 return {
 	"mfussenegger/nvim-dap",
-	cmd = "Debug",
+	event = "VeryLazy",
 	dependencies = {
 		"rcarriga/nvim-dap-ui",
+		"theHamsta/nvim-dap-virtual-text",
 		"nvim-neotest/nvim-nio",
-		"rcarriga/cmp-dap",
 	},
 
 	config = function()
 		local dap = require("dap")
-		local dapui = require("dapui")
-		local cmp = require("cmp")
+		local ui = require("dapui")
 
-		cmp.setup({
-			enabled = function()
-				return vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt" or require("cmp_dap").is_dap_buffer()
-			end,
-		})
+		vim.fn.sign_define("DapBreakpoint", { text = " " })
+		ui.setup()
 
-		cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" }, {
-			sources = {
-				{ name = "dap" },
-			},
-		})
-
-		dapui.setup({
-			{
-				controls = {
-					element = "repl",
-					enabled = true,
-					icons = {
-						disconnect = "",
-						pause = "",
-						play = "",
-						run_last = "",
-						step_back = "",
-						step_into = "",
-						step_out = "",
-						step_over = "",
-						terminate = "",
-					},
-				},
-				element_mappings = {},
-				expand_lines = true,
-				floating = {
-					border = "rounded",
-					mappings = {
-						close = { "q", "<Esc>" },
-					},
-				},
-				force_buffers = true,
-				icons = {
-					collapsed = "",
-					current_frame = "",
-					expanded = "",
-				},
-				layouts = {
-					{
-						elements = {
-							{
-								id = "scopes",
-								size = 0.25,
-							},
-							{
-								id = "breakpoints",
-								size = 0.25,
-							},
-							{
-								id = "stacks",
-								size = 0.25,
-							},
-							{
-								id = "watches",
-								size = 0.25,
-							},
-						},
-						position = "left",
-						size = 40,
-					},
-					{
-						elements = {
-							{
-								id = "repl",
-								size = 0.5,
-							},
-							{
-								id = "console",
-								size = 0.5,
-							},
-						},
-						position = "bottom",
-						size = 10,
-					},
-				},
-				mappings = {
-					edit = "e",
-					expand = { "<CR>", "<2-LeftMouse>" },
-					open = "o",
-					remove = "d",
-					repl = "r",
-					toggle = "t",
-				},
-				render = {
-					indent = 1,
-					max_value_lines = 100,
-				},
-			},
-		})
+		require("nvim-dap-virtual-text").setup({})
 
 		dap.listeners.before.event_initialized["dapui_config"] = function()
-			dapui.open()
+			ui.open()
 		end
 		dap.listeners.before.event_terminated["dapui_config"] = function()
-			dapui.close()
+			ui.close()
 		end
 		dap.listeners.before.event_exited["dapui_config"] = function()
-			dapui.close()
+			ui.close()
 		end
+
+		-- Configurations for different languages.
+
+		dap.adapters.codelldb = {
+			type = "executable",
+			command = "/opt/homebrew/opt/llvm/bin/lldb-dap",
+			name = "lldb",
+		}
+
+		dap.configurations.rust = {
+			{
+				name = "Launch",
+				type = "codelldb",
+				request = "launch",
+				program = function()
+					return vim.fn.getcwd() .. "/target/debug/rust"
+				end,
+				cwd = "${workspaceFolder}",
+				stopOnEntry = false,
+				args = { "--all-features" },
+			},
+			{
+				name = "temporal tests",
+				type = "codelldb",
+				request = "launch",
+				program = function()
+					return vim.fn.getcwd() .. "/target/debug/deps/temporal_rs-23064dd8d13d0644"
+				end,
+				cwd = "${workspaceFolder}",
+				stopOnEntry = false,
+				args = {},
+			},
+		}
+
+		dap.adapters.debugpy = {
+			type = "executable",
+			command = "~/.local/share/nvim/mason/bin/debugpy-adapter",
+		}
+
+		dap.configurations.python = {
+			{
+				name = "Launch file",
+				type = "debugpy",
+				request = "launch",
+				program = "${file}",
+			},
+		}
 
 		vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, {})
 		vim.keymap.set("n", "<leader>dt", dap.continue, {})

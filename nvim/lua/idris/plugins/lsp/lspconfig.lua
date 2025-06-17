@@ -1,17 +1,31 @@
 local lsp = vim.lsp
 
--- Add borders to vim.lsp.buf.hover()
-lsp.handlers["textDocument/hover"] = lsp.with(vim.lsp.handlers.hover, {
-	border = "rounded",
-	title = " Documentation   ",
-	silent = true,
-})
+local hover = vim.lsp.buf.hover
+---@diagnostic disable-next-line: duplicate-set-field
+vim.lsp.buf.hover = function()
+	return hover({
+		border = "rounded",
+		title = "Documentation",
+		max_width = math.floor(vim.o.columns * 0.7),
+		max_height = math.floor(vim.o.lines * 0.7),
+	})
+end
+
+local signature_help = vim.lsp.buf.signature_help
+
+---@diagnostic disable-next-line: duplicate-set-field
+vim.lsp.buf.signature_help = function()
+	return signature_help({
+		border = "rounded",
+		title = "Signature",
+	})
+end
 
 return {
 	"neovim/nvim-lspconfig",
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = {
-		"hrsh7th/cmp-nvim-lsp",
+		-- "hrsh7th/cmp-nvim-lsp",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "folke/neodev.nvim", ft = "lua", opts = {} },
 	},
@@ -23,7 +37,7 @@ return {
 		local mason_lspconfig = require("mason-lspconfig")
 
 		-- import cmp-nvim-lsp plugin
-		local cmp_nvim_lsp = require("cmp_nvim_lsp")
+		-- local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
 		local keymap = vim.keymap -- for conciseness
 
@@ -41,7 +55,7 @@ return {
 				keymap.set("n", "gD", vim.lsp.buf.declaration, opts) -- go to declaration
 
 				opts.desc = "Show LSP definitions"
-				keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts) -- show lsp definitions
+				keymap.set("n", "gd", vim.lsp.buf.definition, opts) -- show lsp definitions
 
 				opts.desc = "Show LSP references"
 				keymap.set("n", "gr", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
@@ -71,10 +85,14 @@ return {
 				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts) -- show diagnostics for line
 
 				opts.desc = "Go to previous diagnostic"
-				keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
+				keymap.set("n", "[d", function()
+					vim.diagnostic.jump({ count = -1, float = true })
+				end)
 
 				opts.desc = "Go to next diagnostic"
-				keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
+				keymap.set("n", "]d", function()
+					vim.diagnostic.jump({ count = 1, float = true })
+				end)
 
 				opts.desc = "Show documentation for what is under cursor"
 				keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
@@ -85,107 +103,154 @@ return {
 		})
 
 		-- used to enable autocompletion (assign to every lsp server config)
-		local capabilities = cmp_nvim_lsp.default_capabilities()
+		local capabilities = lsp.protocol.make_client_capabilities()
 
-		-- Change the Diagnostic symbols in the sign column (gutter)
-		-- (not in youtube nvim video)
-		local signs = { Error = "", Warn = "", Hint = "󰠠", Info = "" }
-		for type, icon in pairs(signs) do
-			local hl = "DiagnosticSign" .. type
-			vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-		end
-		mason_lspconfig.setup_handlers({
-			-- default handler for installed servers
-			function(server_name)
-				lspconfig[server_name].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- Typscript
-			["ts_ls"] = function()
-				lspconfig["ts_ls"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- Html
-			["html"] = function()
-				lspconfig["html"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- Tailwind
-			["tailwindcss"] = function()
-				lspconfig["tailwindcss"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- eslint
-			["eslint"] = function()
-				lspconfig["eslint"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- Kotlin
-			["kotlin_language_server"] = function()
-				lspconfig["kotlin_language_server"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- Python
-			["pyright"] = function()
-				lspconfig["pyright"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- C / C++
-			["clangd"] = function()
-				lspconfig["clangd"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- Haskell
-			["hls"] = function()
-				lspconfig["hls"].setup({
-					capabilities = capabilities,
-					handlers = {
-						["window/showMessage"] = function(_, result, ctx, config)
-							if result.type <= vim.lsp.protocol.MessageType.Log then
-								return
-							end
-							vim.lsp.handlers["window/showMessage"](_, result, ctx, config)
-						end,
-					},
-				})
-			end,
-			-- Java
-			["jdtls"] = function()
-				lspconfig["jdtls"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			--Latex
-			["texlab"] = function()
-				lspconfig["texlab"].setup({
-					capabilities = capabilities,
-				})
-			end,
-			-- Lua
-			["lua_ls"] = function()
-				lspconfig["lua_ls"].setup({
-					capabilities = capabilities,
-					settings = {
-						Lua = {
-							-- make the language server recognize "vim" global
-							diagnostics = {
-								globals = { "vim" },
-							},
-							completion = {
-								callSnippet = "Replace",
-							},
-						},
-					},
-				})
-			end,
+		lspconfig.pyright.setup({
+			capabilities = capabilities,
 		})
+
+		lspconfig.rust_analyzer.setup({
+			capabilities = capabilities,
+			root_dir = lspconfig.util.root_pattern("Cargo.toml"),
+			settings = {
+				["rust-analyzer"] = {
+					cargo = {
+						features = "all", -- Enable all features by default
+					},
+					checkOnSave = {
+						command = "check", -- or "clippy" if you prefer clippy
+						extraArgs = { "--all-features" }, -- Make sure all features are included in `check`
+					},
+				},
+			},
+		})
+
+		lspconfig.clangd.setup({
+			capabilities = capabilities,
+		})
+
+		-- 	["clangd"] = function()
+		-- 		lspconfig["clangd"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+
+		-- mason_lspconfig.setup_handlers({
+		-- 	-- default handler for installed servers
+		-- 	function(server_name)
+		-- 		lspconfig[server_name].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- Typscript
+		-- 	["ts_ls"] = function()
+		-- 		lspconfig["ts_ls"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- Html
+		-- 	["html"] = function()
+		-- 		lspconfig["html"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- Tailwind
+		-- 	["tailwindcss"] = function()
+		-- 		lspconfig["tailwindcss"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- eslint
+		-- 	["eslint"] = function()
+		-- 		lspconfig["eslint"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- Kotlin
+		-- 	["kotlin_language_server"] = function()
+		-- 		lspconfig["kotlin_language_server"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- Python
+		-- 	["pyright"] = function()
+		-- 		lspconfig["pyright"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- C / C++
+		-- 	["clangd"] = function()
+		-- 		lspconfig["clangd"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- C#
+		-- 	["csharp_ls"] = function()
+		-- 		lspconfig["csharp_ls"].setup({
+		-- 			capabilities = capabilities,
+		-- 			cmd = { "~/.local/share/nvim/mason/bin/chsharp-ls" },
+		-- 		})
+		-- 	end,
+		-- 	-- Haskell
+		-- 	["hls"] = function()
+		-- 		lspconfig["hls"].setup({
+		-- 			capabilities = capabilities,
+		-- 			handlers = {
+		-- 				["window/showMessage"] = function(_, result, ctx, config)
+		-- 					if result.type <= vim.lsp.protocol.MessageType.Log then
+		-- 						return
+		-- 					end
+		-- 					vim.lsp.handlers["window/showMessage"](_, result, ctx, config)
+		-- 				end,
+		-- 			},
+		-- 		})
+		-- 	end,
+		-- 	-- Rust
+		-- 	["rust_analyzer"] = function()
+		-- 		lspconfig["rust_analyzer"].setup({
+		-- 			capabilities = capabilities,
+		-- 			root_dir = lspconfig.util.root_pattern("Cargo.toml"),
+		-- 			settings = {
+		-- 				["rust-analyzer"] = {
+		-- 					cargo = {
+		-- 						features = "all", -- Enable all features by default
+		-- 					},
+		-- 					checkOnSave = {
+		-- 						command = "check", -- or "clippy" if you prefer clippy
+		-- 						extraArgs = { "--all-features" }, -- Make sure all features are included in `check`
+		-- 					},
+		-- 				},
+		-- 			},
+		-- 		})
+		-- 	end,
+		-- 	-- Java
+		-- 	["jdtls"] = function()
+		-- 		lspconfig["jdtls"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	--Latex
+		-- 	["texlab"] = function()
+		-- 		lspconfig["texlab"].setup({
+		-- 			capabilities = capabilities,
+		-- 		})
+		-- 	end,
+		-- 	-- Lua
+		-- 	["lua_ls"] = function()
+		-- 		lspconfig["lua_ls"].setup({
+		-- 			capabilities = capabilities,
+		-- 			settings = {
+		-- 				Lua = {
+		-- 					-- make the language server recognize "vim" global
+		-- 					diagnostics = {
+		-- 						globals = { "vim" },
+		-- 					},
+		-- 					completion = {
+		-- 						callSnippet = "Replace",
+		-- 					},
+		-- 				},
+		-- 			},
+		-- 		})
+		-- 	end,
+		-- })
 	end,
 }

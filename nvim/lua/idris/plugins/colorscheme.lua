@@ -1,54 +1,59 @@
 local spec = {
-	{
-		"catppuccin/nvim",
-		name = "catppuccin",
-		lazy = true,
-		config = function()
-			require("catppuccin").setup({
-				term_colors = true,
-				transparent_background = true,
-				integrations = {
-					telescope = {
-						enabled = true,
-					},
-					indent_blankline = {
-						enabled = true,
-						scope_color = "lavender",
-						colored_indent_levels = false,
-					},
-					treesitter = true,
-					notify = true,
-					alpha = true,
-					mason = true,
-					neogit = true,
-				},
-			})
-		end,
-	},
-
-	{
-		"folke/tokyonight.nvim",
-		name = "colors_tokyonight",
-		lazy = true,
-		config = function()
-			require("tokyonight").setup({
-				transparent = true,
-			})
-		end,
-	},
+	-- {
+	-- 	"catppuccin/nvim",
+	-- 	name = "catppuccin",
+	-- 	lazy = true,
+	-- 	config = function()
+	-- 		require("catppuccin").setup({
+	-- 			term_colors = true,
+	-- 			transparent_background = true,
+	-- 			integrations = {
+	-- 				telescope = {
+	-- 					enabled = true,
+	-- 				},
+	-- 				indent_blankline = {
+	-- 					enabled = true,
+	-- 					scope_color = "lavender",
+	-- 					colored_indent_levels = false,
+	-- 				},
+	-- 				treesitter = true,
+	-- 				notify = true,
+	-- 				alpha = true,
+	-- 				mason = true,
+	-- 				neogit = true,
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- },
+	--
+	-- {
+	-- 	"folke/tokyonight.nvim",
+	-- 	name = "colors_tokyonight",
+	-- 	lazy = true,
+	-- 	config = function()
+	-- 		require("tokyonight").setup({
+	-- 			transparent = true,
+	-- 		})
+	-- 	end,
+	-- },
 
 	{
 		"rose-pine/neovim",
+		variant = "main", -- auto, main, moon, or dawn
 		name = "rose-pine",
 		priority = 1000,
-		variant = "main", -- auto, main, moon, or dawn
 		config = function()
 			require("rose-pine").setup({
 				styles = {
 					transparency = true,
+					bold = true,
+					italic = true,
 				},
 				groups = {},
 				highlight_groups = {
+
+					Comment = { italic = true },
+
 					TelescopeBorder = { fg = "highlight_high", bg = "none" },
 					TelescopeNormal = { bg = "none" },
 					TelescopePromptNormal = { bg = "surface" },
@@ -56,9 +61,9 @@ local spec = {
 					TelescopeSelection = { fg = "text", bg = "surface" },
 					TelescopeSelectionCaret = { fg = "foam", bg = "highlight_high" },
 
-					MarkviewInlineCode = { bg = "surface" },
-					MarkviewCode = { bg = "surface" },
-					MarkviewCodeInfo = { bg = "surface" },
+					-- MarkviewInlineCode = { bg = "surface" },
+					-- MarkviewCode = { bg = "surface" },
+					-- MarkviewCodeInfo = { bg = "surface" },
 
 					["@markup.strong"] = { fg = "iris" }, -- bold text color
 					["@markup.italic"] = { fg = "iris" }, -- italic text color

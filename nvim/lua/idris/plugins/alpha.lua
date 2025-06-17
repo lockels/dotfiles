@@ -1,56 +1,46 @@
 return {
 	"goolord/alpha-nvim",
 	event = "VimEnter",
+	dependencies = { "RileyGabrielson/inspire.nvim" },
 
 	config = function()
 		local alpha = require("alpha")
 		local dashboard = require("alpha.themes.dashboard")
+		local inspire = require("inspire")
 
 		-- Set header
-		dashboard.section.header.val = {
-
-			-- "            *     ,MMM8&&&.            *    ",
-			-- "                  MMMM88&&&&&    .          ",
-			-- "                 MMMM88&&&&&&&              ",
-			-- "     *           MMM88&&&&&&&&              ",
-			-- "                 MMM88&&&&&&&&    Meowvim :)",
-			-- "                 'MMM88&&&&&&'              ",
-			-- "                   'MMM8&&&'      *         ",
-			-- "          |\\___/|     /\\___/\\               ",
-			-- "          )     (     )    ~( .      '      ",
-			-- "         =\\     /=   =\\~    /=              ",
-			-- "           )===(       ) ~ (                ",
-			-- "          /     \\     /     \\               ",
-			-- "          |     |     ) ~   (               ",
-			-- "         /       \\   /     ~ \\              ",
-			-- "         \\       /   \\~     ~/              ",
-			-- "  jgs_/\\_/\\__  _/_/\\_/\\__~__/_/\\_/\\_/\\_/\\_/\\_",
-			-- "  |  |  |  | ) ) |  |  |//|  |  |  |  |  |  |",
-			-- "  |  |  |  |(_(  |  |  (( |  |  |  |  |  |  |",
-
-			"                                        ",
-			"                                        ",
-			"  _____   _____                         ",
-			"  \\    \\  \\    \\                    ",
-			"   \\    \\  \\    \\      Neovim :)    ",
-			"    \\    \\  \\    \\                  ",
-			"     \\    \\  \\    \\  \\-----------| ",
-			"      \\    \\  \\    \\  \\          | ",
-			"       \\    \\  \\    \\  \\---------| ",
-			"       /    /  /     \\                 ",
-			"      /    /  /       \\  \\-------|    ",
-			"     /    /  /    ^    \\  \\      |    ",
-			"    /    /  /    / \\    \\  \\ ----|   ",
-			"   /    /  /    /   \\    \\            ",
-			"  /____/  /____/     \\____\\           ",
+		local header = {
+			"                                                            ",
+			"           _____   _____                                    ",
+			"           \\    \\  \\    \\                               ",
+			"            \\    \\  \\    \\      Neovim :)               ",
+			"             \\    \\  \\    \\                             ",
+			"              \\    \\  \\    \\  \\-----------|            ",
+			"               \\    \\  \\    \\  \\          |            ",
+			"                \\    \\  \\    \\  \\---------|            ",
+			"                /    /  /     \\                            ",
+			"               /    /  /       \\  \\-------|               ",
+			"              /    /  /    ^    \\  \\      |               ",
+			"             /    /  /    / \\    \\  \\ ----|              ",
+			"            /    /  /    /   \\    \\                       ",
+			"           /____/  /____/     \\____\\                      ",
+			"                                                            ",
 		}
 
-		-- Set menu
+		local quote = inspire.get_quote()
+		local centered_text = inspire.center_text(quote.text, quote.author, 52, 8, 52)
+
+    for _, line_text in pairs(centered_text) do
+      table.insert(header, line_text)
+    end
+
+		dashboard.section.header.val = header
 		dashboard.section.buttons.val = {
 			dashboard.button("f", "  > Find File", ":Telescope find_files<CR>"),
 			dashboard.button("o", "  > Old File", ":Telescope oldfiles<CR>"),
 			dashboard.button("w", "󱎸  > Ripgrep", ":Telescope live_grep<CR>"),
-			dashboard.button("l", "󰒲  > Lazy", ":Lazy<CR>"),
+			dashboard.button("n", "󰁴  > Files", ":Oil<CR>"),
+			-- dashboard.button("l", "󰒲  > Lazy", ":Lazy<CR>"),
 			dashboard.button("c", "  > Config", ":e $MYVIMRC | :cd %:p:h | split . | wincmd k | pwd<CR>"),
 			dashboard.button("q", "󰅝  > Quit", ":qa<CR>"),
 		}

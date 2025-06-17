@@ -43,9 +43,6 @@ opt.backspace = "indent,eol,start"
 -- disable nvim start screen
 opt.shortmess:append("sI")
 
--- disable tildes on unused lines
-opt.fillchars:append({ eob = " " })
-
 -- set <leader> key to space
 g.mapleader = " "
 g.maplocalleader = " "
@@ -127,7 +124,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Highlight when yanking text",
 	group = vim.api.nvim_create_augroup("highlight-yank", { clear = true }),
 	callback = function()
-		vim.highlight.on_yank()
+		vim.hl.on_yank()
 	end,
 })
 

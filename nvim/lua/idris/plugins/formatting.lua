@@ -7,6 +7,7 @@ return {
 
 		conform.setup({
 			formatters_by_ft = {
+        python = { "black" },
 				javascript = { "prettier" },
 				typescript = { "prettier" },
 				javascriptreact = { "prettier" },
@@ -16,11 +17,6 @@ return {
 				yaml = { "prettier" },
 				markdown = { "prettier" },
 				lua = { "stylua" },
-			},
-			format_on_save = {
-				lsp_fallback = true,
-				async = false,
-				timeout_ms = 500,
 			},
 		})
 

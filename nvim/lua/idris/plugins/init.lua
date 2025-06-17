@@ -30,8 +30,11 @@ return {
 		event = "VeryLazy",
 		config = function()
 			require("zen-mode").setup({
-				options = {
-					laststatus = 3,
+				plugins = {
+					options = {
+						laststatus = 3,
+					},
+					tmux = { enabled = false },
 				},
 			})
 		end,
@@ -87,6 +90,19 @@ return {
 		end,
 	},
 
+	-- {
+	-- 	"rachartier/tiny-inline-diagnostic.nvim",
+	-- 	event = "VeryLazy",
+	-- 	priority = 1000,
+	-- 	config = function()
+	-- 		require("tiny-inline-diagnostic").setup({
+	-- 			options = {
+	-- 				multilines = true,
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- },
+
 	{ -- auto closing html tags
 		"windwp/nvim-ts-autotag",
 		ft = {
@@ -125,4 +141,9 @@ return {
 		"Eandrju/cellular-automaton.nvim",
 		vim.keymap.set("n", "<leader>fml", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "Fuck My Life" }),
 	},
+
+	-- {
+	-- 	"sphamba/smear-cursor.nvim",
+	-- 	opts = {},
+	-- },
 }
